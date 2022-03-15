@@ -6,6 +6,7 @@ import net.therap.mealsystem.service.MenuService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.ConstraintViolationException;
@@ -22,6 +23,7 @@ public class MenuController {
     private MenuService menuService;
 
     @GetMapping("/menu/{id}")
+    @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'MEAL_ADMIN', 'MEAL_USER')")
     public ResponseEntity<?> show(@PathVariable Integer id) {
         try {
             return new ResponseEntity<>(menuService.getMenuById(id), HttpStatus.OK);
@@ -31,6 +33,7 @@ public class MenuController {
     }
 
     @PostMapping("/menu")
+    @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'MEAL_ADMIN')")
     public ResponseEntity<?> save(@RequestBody Menu menu) {
         try {
             menuService.save(menu);
@@ -41,6 +44,7 @@ public class MenuController {
     }
 
     @GetMapping("/menu/list")
+    @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'MEAL_ADMIN', 'MEAL_USER')")
     public ResponseEntity<?> showMenus() {
         List<Menu> menuList = menuService.findAll();
 
@@ -48,6 +52,7 @@ public class MenuController {
     }
 
     @PutMapping("/menu/{id}")
+    @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'MEAL_ADMIN')")
     public ResponseEntity<?> update(@PathVariable Integer id, @RequestBody Menu menu) {
         try {
             menuService.update(id, menu);
@@ -60,6 +65,7 @@ public class MenuController {
     }
 
     @DeleteMapping("/menu/{id}")
+    @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'MEAL_ADMIN')")
     public ResponseEntity<?> delete(@PathVariable Integer id) {
         try {
             menuService.delete(id);
