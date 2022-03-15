@@ -84,7 +84,7 @@ public class UserService implements UserDetailsService {
             updatedUser.setFirstName(user.getFirstName());
             updatedUser.setLastName(user.getLastName());
             updatedUser.setEmail(user.getEmail());
-            updatedUser.setPassword(passwordEncoder.encode(user.getPassword()));
+            updatedUser.setPassword(user.getPassword());
             updatedUser.setCreated(user.getCreated());
             updatedUser.setUpdated(new Date(System.currentTimeMillis()));
             updatedUser.setAccountNonExpired(user.isAccountNonExpired());
