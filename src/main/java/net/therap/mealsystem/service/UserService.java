@@ -1,12 +1,13 @@
 package net.therap.mealsystem.service;
 
-import net.therap.mealsystem.domain.Item;
 import net.therap.mealsystem.domain.User;
 import net.therap.mealsystem.exception.CollectionException;
-import net.therap.mealsystem.repository.ItemRepository;
 import net.therap.mealsystem.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ObjectUtils;
 
@@ -18,24 +19,37 @@ import java.util.Optional;
 
 /**
  * @author aladin
+ * @author sheikh.ishrak
  * @since 3/6/22
  */
 @Service
-public class UserService {
+public class UserService implements UserDetailsService {
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
+    @Override
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        return username.contains("@") ? findByEmail(username) : findByUsername(username);
+    }
 
     public Optional<User> findById(int id) {
         return userRepository.findById(id);
     }
 
-    public User findByName(String name) {
-        return userRepository.findByName(name);
+    public User findByUsername(String username) {
+        return userRepository.findByUsername(username);
+    }
+
+    public User findByEmail(String email) {
+        return userRepository.findByEmail(email);
     }
 
     public void save(User user) throws ConstraintViolationException, CollectionException {
-        User userDb = findByName(user.getName());
+        User userDb = findByUsername(user.getUsername());
 
         if (!ObjectUtils.isEmpty(userDb)) {
             throw new CollectionException((CollectionException.alreadyExists()));
@@ -57,7 +71,7 @@ public class UserService {
 
     public void update(int id, User user) throws CollectionException {
         Optional<User> userDB = findById(id);
-        User userWithSameName = findByName(user.getName());
+        User userWithSameName = findByUsername(user.getUsername());
 
         if (userDB.isPresent()) {
             if (!ObjectUtils.isEmpty(userWithSameName) && userWithSameName.getId() != id) {
@@ -66,9 +80,19 @@ public class UserService {
 
             User updatedUser = userDB.get();
 
-            updatedUser.setName(user.getName());
+            updatedUser.setUsername(user.getUsername());
+            updatedUser.setFirstName(user.getFirstName());
+            updatedUser.setLastName(user.getLastName());
+            updatedUser.setEmail(user.getEmail());
+            updatedUser.setPassword(passwordEncoder.encode(user.getPassword()));
+            updatedUser.setCreated(user.getCreated());
             updatedUser.setUpdated(new Date(System.currentTimeMillis()));
-//            updatedUser.setNotifList();
+            updatedUser.setAccountNonExpired(user.isAccountNonExpired());
+            updatedUser.setAccountNonLocked(user.isAccountNonLocked());
+            updatedUser.setCredentialsNonExpired(user.isCredentialsNonExpired());
+            updatedUser.setEnabled(user.isEnabled());
+            updatedUser.setAccountConfirmed(user.isAccountConfirmed());
+
             userRepository.save(updatedUser);
         } else {
             throw new CollectionException(CollectionException.notFoundException(id));
@@ -80,7 +104,9 @@ public class UserService {
         if (!user.isPresent()) {
             throw new CollectionException(CollectionException.notFoundException(id));
         } else {
-            userRepository.delete(user.get());
+            User deletedUser = user.get();
+            deletedUser.setEnabled(false);
+            userRepository.save(deletedUser);
         }
     }
 }

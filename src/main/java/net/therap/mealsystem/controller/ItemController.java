@@ -6,6 +6,7 @@ import net.therap.mealsystem.service.ItemService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.ConstraintViolationException;
@@ -23,16 +24,19 @@ public class ItemController {
     private ItemService itemService;
 
     @GetMapping("/item/list")
+    @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'MEAL_ADMIN')")
     public List<Item> showItems() {
         return itemService.findAll();
     }
 
     @PostMapping("/item")
+    @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'MEAL_ADMIN')")
     public void save(@RequestBody Item item) throws CollectionException {
         itemService.save(item);
     }
 
     @GetMapping("/item/{id}")
+    @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'MEAL_ADMIN')")
     public ResponseEntity<?> showItemById(@PathVariable Integer id) {
         try {
             return new ResponseEntity<>(itemService.findById(id), HttpStatus.OK);
@@ -42,6 +46,7 @@ public class ItemController {
     }
 
     @PutMapping("/item/{id}")
+    @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'MEAL_ADMIN')")
     public ResponseEntity<?> update(@PathVariable Integer id, @RequestBody Item item) {
         try {
             itemService.updateItem(id, item);
@@ -54,6 +59,7 @@ public class ItemController {
     }
 
     @DeleteMapping("/item/{id}")
+    @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'MEAL_ADMIN')")
     public ResponseEntity<?> delete(@PathVariable Integer id) {
         try {
             itemService.deleteItemById(id);

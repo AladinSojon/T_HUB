@@ -8,12 +8,22 @@ CREATE TABLE item (
     CONSTRAINT pk_item PRIMARY KEY (id)
 );
 
-CREATE TABLE user (
-    id       INTEGER        NOT NULL AUTO_INCREMENT,
-    name     VARCHAR(45)   NOT NULL,
-    created  DATE,
-    updated	 DATE,
-    version INTEGER,
+CREATE TABLE user
+(
+    id                      INTEGER      NOT NULL AUTO_INCREMENT,
+    username                VARCHAR(45)  NOT NULL,
+    first_name              VARCHAR(45)  NOT NULL,
+    last_name               VARCHAR(45)  NOT NULL,
+    email                   VARCHAR(255) NOT NULL,
+    password                VARCHAR(255) NOT NULL,
+    created                 DATETIME,
+    updated                 DATETIME,
+    version                 INTEGER,
+    account_non_expired     BOOLEAN,
+    account_non_locked      BOOLEAN,
+    credentials_non_expired BOOLEAN,
+    enabled                 BOOLEAN,
+    account_confirmed       BOOLEAN,
     CONSTRAINT pk_user PRIMARY KEY (id)
 );
 
@@ -41,8 +51,30 @@ CREATE TABLE user_notif_list (
     CONSTRAINT fk_user_id FOREIGN KEY (user_id) REFERENCES user (id)
 );
 
+CREATE TABLE user_roles
+(
+    user_id INTEGER      NOT NULL,
+    role    VARCHAR(255) NOT NULL,
+    idx     INTEGER      NOT NULL,
+    CONSTRAINT pk_cmp_user_role_id PRIMARY KEY (user_id, idx),
+    CONSTRAINT fk_role_user_id FOREIGN KEY (user_id) REFERENCES user (id)
+);
+
 CREATE TABLE menu_item (
     menu_id  INTEGER NOT NULL,
     item_id  INTEGER NOT NULL,
     CONSTRAINT pk_menu_item PRIMARY KEY (menu_id, item_id)
+);
+
+CREATE TABLE account_confirmation_token
+(
+    id         INTEGER      NOT NULL AUTO_INCREMENT,
+    token      VARCHAR(255) NOT NULL,
+    created    DATETIME,
+    updated    DATETIME,
+    version    INTEGER,
+    expiration DATETIME,
+    user_id    INTEGER,
+    CONSTRAINT pk_account_confirmation PRIMARY KEY (id),
+    CONSTRAINT fk_account_confirmation_user_id FOREIGN KEY (user_id) REFERENCES user (id)
 );
