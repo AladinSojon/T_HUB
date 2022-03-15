@@ -21,8 +21,19 @@ public class UserController {
     @Autowired
     private UserService userService;
 
-    @GetMapping("/user")
-    public ResponseEntity<?> show(@RequestParam String id) {
+    @GetMapping("/user/list")
+    public List<User> showList() {
+        return userService.findAll();
+    }
+
+    @PostMapping("/user")
+    public void save(@RequestBody User user) throws CollectionException {
+        System.out.println("hereeeeeeee");
+        userService.save(user);
+    }
+
+    @GetMapping("/user/{id}")
+    public ResponseEntity<?> show(@PathVariable Integer id) {
         try {
             return new ResponseEntity<>(userService.findById(id), HttpStatus.OK);
         } catch (Exception e) {
@@ -30,29 +41,10 @@ public class UserController {
         }
     }
 
-    @PostMapping("/user")
-    public ResponseEntity<?> save(@RequestBody User user) {
+    @PutMapping("/user/{id}")
+    public ResponseEntity<?> update(@PathVariable Integer id, @RequestBody User user) {
         try {
-            userService.save(user);
-            return new ResponseEntity<>(user, HttpStatus.OK);
-        } catch (ConstraintViolationException e) {
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
-        } catch (CollectionException e) {
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.CONFLICT);
-        }
-    }
-
-    @GetMapping("/user/list")
-    public ResponseEntity<?> showUsers() {
-        List<User> userList = userService.findAll();
-
-        return new ResponseEntity<>(userList, userList.size() > 0 ? HttpStatus.OK : HttpStatus.NOT_FOUND);
-    }
-
-    @PutMapping("/user")
-    public ResponseEntity<?> update(@RequestParam String id, @RequestBody User user) {
-        try {
-            userService.updateUser(id, user);
+            userService.update(id, user);
             return new ResponseEntity<>("Update User with id " + id, HttpStatus.OK);
         } catch (ConstraintViolationException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.UNPROCESSABLE_ENTITY);
@@ -61,10 +53,10 @@ public class UserController {
         }
     }
 
-    @DeleteMapping("/user")
-    public ResponseEntity<?> delete(@RequestParam String id) {
+    @DeleteMapping("/user/{id}")
+    public ResponseEntity<?> delete(@PathVariable Integer id) {
         try {
-            userService.deleteById(id);
+            userService.delete(id);
             return new ResponseEntity<>("Successfully deleted with id " + id, HttpStatus.OK);
         } catch (CollectionException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);

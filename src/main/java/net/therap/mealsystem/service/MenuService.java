@@ -4,15 +4,15 @@ import net.therap.mealsystem.domain.Item;
 import net.therap.mealsystem.domain.Menu;
 import net.therap.mealsystem.domain.User;
 import net.therap.mealsystem.exception.CollectionException;
+import net.therap.mealsystem.repository.MenuRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.stereotype.Service;
-import org.springframework.util.ObjectUtils;
 
 import javax.validation.ConstraintViolationException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * @author aladin
@@ -22,7 +22,7 @@ import java.util.List;
 public class MenuService {
 
     @Autowired
-    private MongoTemplate mongoTemplate;
+    private MenuRepository menuRepository;
 
     @Autowired
     private ItemService itemService;
@@ -30,33 +30,25 @@ public class MenuService {
     @Autowired
     private UserService userService;
 
-    public Menu findById(String id) {
-        return mongoTemplate.findById(id, Menu.class);
-    }
-
     public void save(Menu menu) throws ConstraintViolationException {
         List<Item> itemList = new ArrayList<>();
 
         for (Item item: menu.getItemList()) {
-            Item itemDb = itemService.findById(item.getId());
+            Optional<Item> itemDb = itemService.findById(item.getId());
 
-            if (!ObjectUtils.isEmpty(itemDb)) {
-                itemList.add(itemDb);
-            }
+            itemDb.ifPresent(itemList::add);
         }
 
-        User createdBy = userService.findById(menu.getCreatedBy().getId());
-        if (!ObjectUtils.isEmpty(createdBy)) {
-            menu.setCreatedBy(createdBy);
-        }
+        Optional<User> createdBy = userService.findById(menu.getCreatedBy().getId());
+        createdBy.ifPresent(menu::setCreatedBy);
 
         menu.setItemList(itemList);
         menu.setCreated(new Date((System.currentTimeMillis())));
-        mongoTemplate.save(menu);
+        menuRepository.save(menu);
     }
 
     public List<Menu> findAll() {
-        List<Menu> menuList = mongoTemplate.findAll(Menu.class);
+        List<Menu> menuList = menuRepository.findAll();
 
         if (menuList.size() > 0) {
             return menuList;
@@ -65,35 +57,38 @@ public class MenuService {
         }
     }
 
-    public Menu getMenuById(String id) throws CollectionException {
-        Menu menuDb = findById(id);
+    public Menu getMenuById(Integer id) throws CollectionException {
+        Optional<Menu> menuDb = menuRepository.findById(id);
 
-        if (ObjectUtils.isEmpty(menuDb)) {
+        if (!menuDb.isPresent()) {
             throw new CollectionException((CollectionException.notFoundException(id)));
         } else {
-            return menuDb;
+            return menuDb.get();
         }
     }
 
-    public void update(String id, Menu menu) throws CollectionException {
-        Menu menuDb = findById(id);
-        if (!ObjectUtils.isEmpty(menuDb)) {
-            menuDb.setDay(menu.getDay());
-            menuDb.setMealTime(menu.getMealTime());
-            menuDb.setItemList(menu.getItemList());
-            menuDb.setUpdated(new Date(System.currentTimeMillis()));
-            mongoTemplate.save(menuDb);
+    public void update(Integer id, Menu menu) throws CollectionException {
+        Optional<Menu> menuDb = menuRepository.findById(id);
+        if (menuDb.isPresent()) {
+            Menu updatedMenu = menuDb.get();
+            updatedMenu.setDay(menu.getDay());
+            updatedMenu.setMealTime(menu.getMealTime());
+            updatedMenu.setItemList(menu.getItemList());
+            updatedMenu.setCreatedBy(menu.getCreatedBy());
+            updatedMenu.setUpdated(new Date(System.currentTimeMillis()));
+            menuRepository.save(updatedMenu);
         } else {
             throw new CollectionException(CollectionException.notFoundException(id));
         }
     }
 
-    public void delete(String id) throws CollectionException {
-        Menu menu = findById(id);
-        if (ObjectUtils.isEmpty(menu)) {
+    public void delete(Integer id) throws CollectionException {
+        Optional<Menu> menu = menuRepository.findById(id);
+
+        if (!menu.isPresent()) {
             throw new CollectionException(CollectionException.notFoundException(id));
         } else {
-            mongoTemplate.remove(menu);
+            menuRepository.delete(menu.get());
         }
     }
 }

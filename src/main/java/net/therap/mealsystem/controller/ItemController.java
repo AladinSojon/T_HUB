@@ -15,14 +15,25 @@ import java.util.List;
  * @author aladin
  * @since 3/1/22
  */
+@CrossOrigin(origins = "http://localhost:3000")
 @RestController
 public class ItemController {
 
     @Autowired
     private ItemService itemService;
 
-    @GetMapping("/item")
-    public ResponseEntity<?> show(@RequestParam String id) {
+    @GetMapping("/item/list")
+    public List<Item> showItems() {
+        return itemService.findAll();
+    }
+
+    @PostMapping("/item")
+    public void save(@RequestBody Item item) throws CollectionException {
+        itemService.save(item);
+    }
+
+    @GetMapping("/item/{id}")
+    public ResponseEntity<?> showItemById(@PathVariable Integer id) {
         try {
             return new ResponseEntity<>(itemService.findById(id), HttpStatus.OK);
         } catch (Exception e) {
@@ -30,27 +41,8 @@ public class ItemController {
         }
     }
 
-    @PostMapping("/item")
-    public ResponseEntity<?> save(@RequestBody Item item) {
-        try {
-            itemService.save(item);
-            return new ResponseEntity<>(item, HttpStatus.OK);
-        } catch (ConstraintViolationException e) {
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
-        } catch (CollectionException e) {
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.CONFLICT);
-        }
-    }
-
-    @GetMapping("/item/list")
-    public ResponseEntity<?> showItems() {
-        List<Item> itemList = itemService.findAll();
-
-        return new ResponseEntity<>(itemList, itemList.size() > 0 ? HttpStatus.OK : HttpStatus.NOT_FOUND);
-    }
-
-    @PutMapping("/item")
-    public ResponseEntity<?> update(@RequestParam String id, @RequestBody Item item) {
+    @PutMapping("/item/{id}")
+    public ResponseEntity<?> update(@PathVariable Integer id, @RequestBody Item item) {
         try {
             itemService.updateItem(id, item);
             return new ResponseEntity<>("Update Item with id " + id, HttpStatus.OK);
@@ -61,8 +53,8 @@ public class ItemController {
         }
     }
 
-    @DeleteMapping("/item")
-    public ResponseEntity<?> delete(@RequestParam String id) {
+    @DeleteMapping("/item/{id}")
+    public ResponseEntity<?> delete(@PathVariable Integer id) {
         try {
             itemService.deleteItemById(id);
             return new ResponseEntity<>("Successfully deleted with id " + id, HttpStatus.OK);
