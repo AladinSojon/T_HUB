@@ -12,7 +12,7 @@ public class CollectionException extends Exception {
         super(message);
     }
 
-    public static String notFoundException(String id) {
+    public static String notFoundException(int id) {
         return "Not found";
     }
 

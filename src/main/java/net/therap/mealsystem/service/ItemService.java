@@ -2,8 +2,8 @@ package net.therap.mealsystem.service;
 
 import net.therap.mealsystem.domain.Item;
 import net.therap.mealsystem.exception.CollectionException;
+import net.therap.mealsystem.repository.ItemRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ObjectUtils;
 
@@ -11,6 +11,7 @@ import javax.validation.ConstraintViolationException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * @author aladin
@@ -20,14 +21,14 @@ import java.util.List;
 public class ItemService {
 
     @Autowired
-    private MongoTemplate mongoTemplate;
+    private ItemRepository itemRepository;
 
-    public Item findById(String id) {
-        return mongoTemplate.findById(id, Item.class);
+    public Optional<Item> findById(int id) {
+        return itemRepository.findById(id);
     }
 
     public Item findByName(String name) {
-        return mongoTemplate.findById(name, Item.class);
+        return itemRepository.findByName(name);
     }
 
     public void save(Item item) throws ConstraintViolationException, CollectionException {
@@ -37,12 +38,12 @@ public class ItemService {
             throw new CollectionException((CollectionException.alreadyExists()));
         } else {
             item.setCreated(new Date((System.currentTimeMillis())));
-            mongoTemplate.save(item);
+            itemRepository.save(item);
         }
     }
 
     public List<Item> findAll() {
-        List<Item> itemList = mongoTemplate.findAll(Item.class);
+        List<Item> itemList = itemRepository.findAll();
 
         if (itemList.size() > 0) {
             return itemList;
@@ -51,29 +52,32 @@ public class ItemService {
         }
     }
 
-    public void updateItem(String id, Item item) throws CollectionException {
-        Item itemDB = findById(id);
+    public void updateItem(int id, Item item) throws CollectionException {
+        Optional<Item> itemDB = findById(id);
         Item itemWithSameName = findByName(item.getName());
 
-        if (!ObjectUtils.isEmpty(itemDB)) {
-            if (!ObjectUtils.isEmpty(itemWithSameName) && !itemWithSameName.getId().equals(id)) {
+        if (itemDB.isPresent()) {
+            if (!ObjectUtils.isEmpty(itemWithSameName) && itemWithSameName.getId() != id) {
                 throw new CollectionException(CollectionException.alreadyExists());
             }
 
-            itemDB.setName(item.getName());
-            itemDB.setUpdated(new Date(System.currentTimeMillis()));
-            mongoTemplate.save(itemDB);
+            Item updatedItem = itemDB.get();
+
+            updatedItem.setName(item.getName());
+            updatedItem.setDescription(item.getDescription());
+            updatedItem.setUpdated(new Date(System.currentTimeMillis()));
+            itemRepository.save(updatedItem);
         } else {
             throw new CollectionException(CollectionException.notFoundException(id));
         }
     }
 
-    public void deleteItemById(String id) throws CollectionException {
-        Item item = findById(id);
-        if (ObjectUtils.isEmpty(item)) {
+    public void deleteItemById(Integer id) throws CollectionException {
+        Optional<Item> item = findById(id);
+        if (!item.isPresent()) {
             throw new CollectionException(CollectionException.notFoundException(id));
         } else {
-            mongoTemplate.remove(item);
+            itemRepository.delete(item.get());
         }
     }
 }

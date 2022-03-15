@@ -3,6 +3,8 @@ package net.therap.mealsystem.service;
 import net.therap.mealsystem.domain.Item;
 import net.therap.mealsystem.domain.User;
 import net.therap.mealsystem.exception.CollectionException;
+import net.therap.mealsystem.repository.ItemRepository;
+import net.therap.mealsystem.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.stereotype.Service;
@@ -22,14 +24,14 @@ import java.util.Optional;
 public class UserService {
 
     @Autowired
-    private MongoTemplate mongoTemplate;
+    private UserRepository userRepository;
 
-    public User findById(String id) {
-        return mongoTemplate.findById(id, User.class);
+    public Optional<User> findById(int id) {
+        return userRepository.findById(id);
     }
 
     public User findByName(String name) {
-        return mongoTemplate.findById(name, User.class);
+        return userRepository.findByName(name);
     }
 
     public void save(User user) throws ConstraintViolationException, CollectionException {
@@ -39,12 +41,12 @@ public class UserService {
             throw new CollectionException((CollectionException.alreadyExists()));
         } else {
             user.setCreated(new Date((System.currentTimeMillis())));
-            mongoTemplate.save(user);
+            userRepository.save(user);
         }
     }
 
     public List<User> findAll() {
-        List<User> userList = mongoTemplate.findAll(User.class);
+        List<User> userList = userRepository.findAll();
 
         if (userList.size() > 0) {
             return userList;
@@ -53,29 +55,32 @@ public class UserService {
         }
     }
 
-    public void updateUser(String id, User user) throws CollectionException {
-        User userDb = findById(id);
+    public void update(int id, User user) throws CollectionException {
+        Optional<User> userDB = findById(id);
         User userWithSameName = findByName(user.getName());
 
-        if (!ObjectUtils.isEmpty(userDb)) {
-            if (!ObjectUtils.isEmpty(userWithSameName) && !userWithSameName.getId().equals(id)) {
+        if (userDB.isPresent()) {
+            if (!ObjectUtils.isEmpty(userWithSameName) && userWithSameName.getId() != id) {
                 throw new CollectionException(CollectionException.alreadyExists());
             }
 
-            userDb.setName(user.getName());
-            userDb.setUpdated(new Date(System.currentTimeMillis()));
-            mongoTemplate.save(userDb);
+            User updatedUser = userDB.get();
+
+            updatedUser.setName(user.getName());
+            updatedUser.setUpdated(new Date(System.currentTimeMillis()));
+//            updatedUser.setNotifList();
+            userRepository.save(updatedUser);
         } else {
             throw new CollectionException(CollectionException.notFoundException(id));
         }
     }
 
-    public void deleteById(String id) throws CollectionException {
-        User user = findById(id);
-        if (ObjectUtils.isEmpty(user)) {
+    public void delete(Integer id) throws CollectionException {
+        Optional<User> user = findById(id);
+        if (!user.isPresent()) {
             throw new CollectionException(CollectionException.notFoundException(id));
         } else {
-            mongoTemplate.remove(user);
+            userRepository.delete(user.get());
         }
     }
 }
