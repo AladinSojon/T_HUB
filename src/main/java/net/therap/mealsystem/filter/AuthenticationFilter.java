@@ -10,6 +10,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.bind.annotation.CrossOrigin;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
@@ -21,6 +22,7 @@ import java.io.IOException;
  * @author sheikh.ishrak
  * @since 10/03/2022
  */
+@CrossOrigin(origins = "http://localhost:3000")
 public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
 
     @Autowired
@@ -55,5 +57,7 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
         String token = JwtUtil.generateToken(authResult);
 
         response.addHeader(HttpHeaders.AUTHORIZATION, "Bearer " + token);
+        response.setHeader("Access-Control-Expose-Headers", "Authorization");
+        response.setHeader("Access-Control-Allow-Origin", "http://localhost:3000");
     }
 }

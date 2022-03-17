@@ -16,6 +16,7 @@ import java.util.List;
  * @author aladin
  * @since 2/28/22
  */
+@CrossOrigin(origins = "http://localhost:3000")
 @RestController
 public class UserController {
 

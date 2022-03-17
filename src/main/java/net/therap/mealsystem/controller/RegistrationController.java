@@ -16,6 +16,7 @@ import javax.validation.ConstraintViolationException;
  * @author sheikh.ishrak
  * @since 09/03/2022
  */
+@CrossOrigin(origins = "http://localhost:3000")
 @RestController
 public class RegistrationController {
 

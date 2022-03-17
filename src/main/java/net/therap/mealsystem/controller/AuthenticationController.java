@@ -1,5 +1,6 @@
 package net.therap.mealsystem.controller;
 
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
