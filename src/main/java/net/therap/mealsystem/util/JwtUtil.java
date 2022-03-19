@@ -16,7 +16,7 @@ import java.util.Map;
 public class JwtUtil {
 
     public static final String SECRET_KEY = "secretkeysecretkeysecretkeysecretkey";
-    public static final long TOKEN_EXPIRY = 30 * 60 * 1000;
+    public static final long TOKEN_EXPIRY = 6 * 60 * 60 * 1000;
 
     public static Claims getAllClaims(String token) {
         return Jwts.parser().setSigningKey(Keys.hmacShaKeyFor(JwtUtil.SECRET_KEY.getBytes()))

@@ -3,19 +3,25 @@ package net.therap.mealsystem.service;
 import net.therap.mealsystem.domain.Item;
 import net.therap.mealsystem.domain.Menu;
 import net.therap.mealsystem.domain.User;
+import net.therap.mealsystem.dto.MealDto;
+import net.therap.mealsystem.dto.MenuDto;
 import net.therap.mealsystem.exception.CollectionException;
 import net.therap.mealsystem.repository.MenuRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.validation.ConstraintViolationException;
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * @author aladin
+ * @author sheikh.ishrak
  * @since 3/6/22
  */
 @Service
@@ -33,7 +39,7 @@ public class MenuService {
     public void save(Menu menu) throws ConstraintViolationException {
         List<Item> itemList = new ArrayList<>();
 
-        for (Item item: menu.getItemList()) {
+        for (Item item : menu.getItemList()) {
             Optional<Item> itemDb = itemService.findById(item.getId());
 
             itemDb.ifPresent(itemList::add);
@@ -90,5 +96,46 @@ public class MenuService {
         } else {
             menuRepository.delete(menu.get());
         }
+    }
+
+    public List<MenuDto> getMenusForView() {
+        List<MenuDto> menuDtos = new ArrayList<>();
+
+        LocalDate fromDate = new Date().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+        LocalDate toDate = fromDate.plusDays(10);
+
+        List<Menu> menuList = menuRepository.findByMealDateGreaterThanEqualAndMealDateLessThanEqual(
+                Date.from(fromDate.atStartOfDay(ZoneId.systemDefault()).toInstant()),
+                Date.from(toDate.atStartOfDay(ZoneId.systemDefault()).toInstant()));
+
+        for (LocalDate date = fromDate; date.isBefore(toDate) || date.equals(toDate); date = date.plusDays(1)) {
+            LocalDate mealDate = date;
+            List<Menu> menusForDate = menuList
+                    .stream()
+                    .filter(menu -> menu.getMealDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDate().equals(mealDate))
+                    .collect(Collectors.toList());
+
+            if (menusForDate.isEmpty()) {
+                continue;
+            }
+
+            MenuDto menuDto = new MenuDto();
+
+            menuDto.setDate(mealDate);
+            menuDto.setDay(mealDate.getDayOfWeek().name());
+
+            for (Menu menu : menusForDate) {
+                MealDto mealDto = new MealDto();
+                mealDto.setMealTime(menu.getMealTime());
+                mealDto.setItemMap(menu.getItemList().stream().collect(Collectors.toMap(Item::getId, Item::getName)));
+                mealDto.setHeadCount(menu.getHeadCount());
+
+                menuDto.getMealList().add(mealDto);
+            }
+
+            menuDtos.add(menuDto);
+        }
+
+        return menuDtos;
     }
 }

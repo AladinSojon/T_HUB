@@ -1,6 +1,7 @@
 package net.therap.mealsystem.controller;
 
 import net.therap.mealsystem.domain.Menu;
+import net.therap.mealsystem.dto.MenuDto;
 import net.therap.mealsystem.exception.CollectionException;
 import net.therap.mealsystem.service.MenuService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,7 +48,7 @@ public class MenuController {
     @GetMapping("/menu/list")
     @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'MEAL_ADMIN', 'MEAL_USER')")
     public ResponseEntity<?> showMenus() {
-        List<Menu> menuList = menuService.findAll();
+        List<MenuDto> menuList = menuService.getMenusForView();
 
         return new ResponseEntity<>(menuList, menuList.size() > 0 ? HttpStatus.OK : HttpStatus.NOT_FOUND);
     }
