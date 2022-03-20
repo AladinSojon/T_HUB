@@ -80,6 +80,28 @@ public class RegistrationService {
 
         userService.save(user);
 
+        generateAndSendAccountConfirmationToken(user);
+    }
+
+    public void resendAccountConfirmationToken(String usernameOrEmail) {
+        User user = userService.findByUsernameOrEmail(usernameOrEmail);
+
+        if (ObjectUtils.isEmpty(user)) {
+            throw new IllegalStateException("No user found for the provided username/email");
+        }
+
+        if (UserAccountStatus.DELETED.equals(user.getAccountStatus())) {
+            throw new IllegalStateException("Account no longer exists");
+        }
+
+        if (UserAccountStatus.CONFIRMED.equals(user.getAccountStatus())) {
+            throw new IllegalStateException("Account already confirmed");
+        }
+
+        generateAndSendAccountConfirmationToken(user);
+    }
+
+    public void generateAndSendAccountConfirmationToken(User user) {
         AccountConfirmationToken accountConfirmationToken = new AccountConfirmationToken();
         String token = UUID.randomUUID().toString();
 

@@ -29,12 +29,9 @@ public class UserService implements UserDetailsService {
     @Autowired
     private UserRepository userRepository;
 
-    @Autowired
-    private PasswordEncoder passwordEncoder;
-
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        return username.contains("@") ? findByEmail(username) : findByUsername(username);
+        return findByUsernameOrEmail(username);
     }
 
     public Optional<User> findById(int id) {
@@ -47,6 +44,10 @@ public class UserService implements UserDetailsService {
 
     public User findByEmail(String email) {
         return userRepository.findByEmail(email);
+    }
+
+    public User findByUsernameOrEmail(String usernameOrEmail) {
+        return usernameOrEmail.contains("@") ? findByEmail(usernameOrEmail) : findByUsername(usernameOrEmail);
     }
 
     public void save(User user) throws ConstraintViolationException, CollectionException {

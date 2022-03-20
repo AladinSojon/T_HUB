@@ -31,14 +31,13 @@ public class AuthenticationService {
     private PasswordEncoder passwordEncoder;
 
     public void sendPasswordResetToken(String usernameOrEmail) {
-        User user = usernameOrEmail.contains("@") ? userService.findByEmail(usernameOrEmail) :
-                userService.findByUsername(usernameOrEmail);
+        User user = userService.findByUsernameOrEmail(usernameOrEmail);
 
         if (ObjectUtils.isEmpty(user)) {
             throw new IllegalStateException("No user found for the provided username/email");
         }
 
-        if (UserAccountStatus.DELETED.name().equals(user.getAccountStatus())) {
+        if (UserAccountStatus.DELETED.equals(user.getAccountStatus())) {
             throw new IllegalStateException("Account no longer exists");
         }
 

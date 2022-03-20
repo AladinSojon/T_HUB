@@ -31,7 +31,7 @@ public class PasswordResetTokenService {
             throw new IllegalStateException("Password Reset Token expired");
         }
 
-        if (UserAccountStatus.DELETED.name().equals(passwordResetToken.getUser().getAccountStatus())) {
+        if (UserAccountStatus.DELETED.equals(passwordResetToken.getUser().getAccountStatus())) {
             throw new IllegalStateException("Account no longer exists");
         }
     }

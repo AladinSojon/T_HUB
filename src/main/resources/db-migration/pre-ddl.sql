@@ -85,13 +85,13 @@ CREATE TABLE account_confirmation_token
 
 CREATE TABLE password_reset_token
 (
-    id                 INTEGER      NOT NULL AUTO_INCREMENT,
-    token              VARCHAR(255) NOT NULL,
-    created            DATETIME,
-    updated            DATETIME,
-    version            INTEGER,
-    expiration         DATETIME,
-    user_id            INTEGER,
+    id         INTEGER      NOT NULL AUTO_INCREMENT,
+    token      VARCHAR(255) NOT NULL,
+    created    DATETIME,
+    updated    DATETIME,
+    version    INTEGER,
+    expiration DATETIME,
+    user_id    INTEGER,
     CONSTRAINT pk_password_reset PRIMARY KEY (id),
     CONSTRAINT fk_password_reset_user_id FOREIGN KEY (user_id) REFERENCES user (id)
 );

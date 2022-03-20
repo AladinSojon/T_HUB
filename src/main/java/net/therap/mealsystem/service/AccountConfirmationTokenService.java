@@ -42,11 +42,11 @@ public class AccountConfirmationTokenService {
             throw new IllegalStateException("Confirmation Token expired");
         }
 
-        if (UserAccountStatus.DELETED.name().equals(accountConfirmationToken.getUser().getAccountStatus())) {
+        if (UserAccountStatus.DELETED.equals(accountConfirmationToken.getUser().getAccountStatus())) {
             throw new IllegalStateException("Account no longer exists");
         }
 
-        if (UserAccountStatus.CONFIRMED.name().equals(accountConfirmationToken.getUser().getAccountStatus())) {
+        if (UserAccountStatus.CONFIRMED.equals(accountConfirmationToken.getUser().getAccountStatus())) {
             throw new IllegalStateException("Account already confirmed");
         }
     }

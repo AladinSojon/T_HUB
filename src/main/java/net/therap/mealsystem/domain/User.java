@@ -79,9 +79,6 @@ public class User extends Persistent implements UserDetails {
     @Column(name = "enabled")
     private boolean isEnabled;
 
-    /*@Column(name = "account_confirmed")
-    private boolean isAccountConfirmed;*/
-
     public User() {
         roles = new ArrayList<>();
         notifList = new ArrayList<>();

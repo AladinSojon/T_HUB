@@ -4,6 +4,7 @@ import net.therap.mealsystem.dto.RegistrationRequest;
 import net.therap.mealsystem.exception.CollectionException;
 import net.therap.mealsystem.service.AccountConfirmationTokenService;
 import net.therap.mealsystem.service.RegistrationService;
+import net.therap.mealsystem.util.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -41,6 +42,13 @@ public class RegistrationController {
     @GetMapping("/signup/confirm")
     public ResponseEntity<?> confirmRegistration(@RequestParam("token") String token) throws CollectionException {
         accountConfirmationTokenService.confirm(token);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @PostMapping("/resendConfirmation")
+    public ResponseEntity<?> resendAccountConfirmationToken(@RequestBody JSONObject jsonObject) {
+        String usernameOrEmail = (String) jsonObject.get("usernameOrEmail");
+        registrationService.resendAccountConfirmationToken(usernameOrEmail);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 }
