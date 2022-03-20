@@ -2,6 +2,7 @@ package net.therap.mealsystem.service;
 
 import net.therap.mealsystem.domain.AccountConfirmationToken;
 import net.therap.mealsystem.domain.User;
+import net.therap.mealsystem.domain.UserAccountStatus;
 import net.therap.mealsystem.exception.CollectionException;
 import net.therap.mealsystem.repository.AccountConfirmationTokenRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,17 +32,21 @@ public class AccountConfirmationTokenService {
         validateToken(accountConfirmationToken);
 
         User user = accountConfirmationToken.getUser();
-        user.setAccountConfirmed(true);
+        user.setAccountStatus(UserAccountStatus.CONFIRMED);
         user.setEnabled(true);
         userService.update(user.getId(), user);
     }
 
     public void validateToken(AccountConfirmationToken accountConfirmationToken) {
-        if(accountConfirmationToken.getExpiration().before(new Date(System.currentTimeMillis()))) {
+        if (accountConfirmationToken.getExpiration().before(new Date(System.currentTimeMillis()))) {
             throw new IllegalStateException("Confirmation Token expired");
         }
 
-        if(accountConfirmationToken.getUser().isAccountConfirmed()) {
+        if (UserAccountStatus.DELETED.name().equals(accountConfirmationToken.getUser().getAccountStatus())) {
+            throw new IllegalStateException("Account no longer exists");
+        }
+
+        if (UserAccountStatus.CONFIRMED.name().equals(accountConfirmationToken.getUser().getAccountStatus())) {
             throw new IllegalStateException("Account already confirmed");
         }
     }
@@ -60,7 +65,7 @@ public class AccountConfirmationTokenService {
         }
     }
 
-    public void save(AccountConfirmationToken accountConfirmationToken) throws ConstraintViolationException, CollectionException {
+    public void save(AccountConfirmationToken accountConfirmationToken) throws ConstraintViolationException {
         accountConfirmationToken.setCreated(new Date(System.currentTimeMillis()));
         accountConfirmationToken.setExpiration(new Date(System.currentTimeMillis() + 24 * 60 * 60 * 1000));
         accountConfirmationTokenRepository.save(accountConfirmationToken);

@@ -62,6 +62,11 @@ public class User extends Persistent implements UserDetails {
     @OrderColumn(name = "idx")
     private List<String> notifList;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "account_status")
+    @NotNull
+    private UserAccountStatus accountStatus;
+
     @Column(name = "account_non_expired")
     private boolean isAccountNonExpired;
 
@@ -74,8 +79,8 @@ public class User extends Persistent implements UserDetails {
     @Column(name = "enabled")
     private boolean isEnabled;
 
-    @Column(name = "account_confirmed")
-    private boolean isAccountConfirmed;
+    /*@Column(name = "account_confirmed")
+    private boolean isAccountConfirmed;*/
 
     public User() {
         roles = new ArrayList<>();

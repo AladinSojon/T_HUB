@@ -1,6 +1,7 @@
 package net.therap.mealsystem.service;
 
 import net.therap.mealsystem.domain.User;
+import net.therap.mealsystem.domain.UserAccountStatus;
 import net.therap.mealsystem.exception.CollectionException;
 import net.therap.mealsystem.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -87,11 +88,11 @@ public class UserService implements UserDetailsService {
             updatedUser.setPassword(user.getPassword());
             updatedUser.setCreated(user.getCreated());
             updatedUser.setUpdated(new Date(System.currentTimeMillis()));
+            updatedUser.setAccountStatus(user.getAccountStatus());
             updatedUser.setAccountNonExpired(user.isAccountNonExpired());
             updatedUser.setAccountNonLocked(user.isAccountNonLocked());
             updatedUser.setCredentialsNonExpired(user.isCredentialsNonExpired());
             updatedUser.setEnabled(user.isEnabled());
-            updatedUser.setAccountConfirmed(user.isAccountConfirmed());
 
             userRepository.save(updatedUser);
         } else {
@@ -105,6 +106,7 @@ public class UserService implements UserDetailsService {
             throw new CollectionException(CollectionException.notFoundException(id));
         } else {
             User deletedUser = user.get();
+            deletedUser.setAccountStatus(UserAccountStatus.DELETED);
             deletedUser.setEnabled(false);
             userRepository.save(deletedUser);
         }

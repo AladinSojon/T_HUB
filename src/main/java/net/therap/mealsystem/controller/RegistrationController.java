@@ -4,7 +4,6 @@ import net.therap.mealsystem.dto.RegistrationRequest;
 import net.therap.mealsystem.exception.CollectionException;
 import net.therap.mealsystem.service.AccountConfirmationTokenService;
 import net.therap.mealsystem.service.RegistrationService;
-import net.therap.mealsystem.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -22,9 +21,6 @@ public class RegistrationController {
 
     @Autowired
     private RegistrationService registrationService;
-
-    @Autowired
-    private UserService userService;
 
     @Autowired
     private AccountConfirmationTokenService accountConfirmationTokenService;

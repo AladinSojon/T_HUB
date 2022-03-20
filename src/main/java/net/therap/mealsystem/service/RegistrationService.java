@@ -2,6 +2,7 @@ package net.therap.mealsystem.service;
 
 import net.therap.mealsystem.domain.AccountConfirmationToken;
 import net.therap.mealsystem.domain.User;
+import net.therap.mealsystem.domain.UserAccountStatus;
 import net.therap.mealsystem.dto.RegistrationRequest;
 import net.therap.mealsystem.exception.CollectionException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -71,11 +72,11 @@ public class RegistrationService {
         user.setEmail(registrationRequest.getEmail());
         user.setPassword(passwordEncoder.encode(registrationRequest.getPassword()));
         user.setRoles(Arrays.asList(MEAL_USER, BASIC_USER));
+        user.setAccountStatus(UserAccountStatus.NOT_CONFIRMED);
         user.setAccountNonExpired(true);
         user.setAccountNonLocked(true);
         user.setCredentialsNonExpired(true);
         user.setEnabled(false);
-        user.setAccountConfirmed(false);
 
         userService.save(user);
 
