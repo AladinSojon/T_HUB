@@ -1,7 +1,8 @@
 package net.therap.mealsystem.service;
 
+import net.therap.mealsystem.domain.Item;
+import net.therap.mealsystem.domain.MealTime;
 import net.therap.mealsystem.domain.Menu;
-import net.therap.mealsystem.dto.MealDto;
 import net.therap.mealsystem.dto.MenuDto;
 import net.therap.mealsystem.exception.CollectionException;
 import net.therap.mealsystem.repository.MenuRepository;
@@ -101,18 +102,30 @@ public class MenuService {
                 continue;
             }
 
-            MenuDto menuDto = new MenuDto();
+            MenuDto menuDto = new MenuDto(mealDate, mealDate.getDayOfWeek().name());
 
-            menuDto.setDate(mealDate);
-            menuDto.setDay(mealDate.getDayOfWeek().name());
+            for (MealTime mealTime : MealTime.values()) {
+                String itemListStr = "";
+                int headCount = 0;
 
-            for (Menu menu : menusForDate) {
-                MealDto mealDto = new MealDto();
-                mealDto.setMealTime(menu.getMealTime());
-                mealDto.setItemList(menu.getItemList());
-                mealDto.setHeadCount(menu.getHeadCount());
+                Optional<Menu> menuForMealTime = menusForDate
+                        .stream()
+                        .filter(menu -> menu.getMealTime().equals(mealTime))
+                        .findFirst();
 
-                menuDto.getMealList().add(mealDto);
+                if (menuForMealTime.isPresent()) {
+                    Menu menu = menuForMealTime.get();
+
+                    itemListStr = menu.getItemList()
+                            .stream()
+                            .map(Item::getName)
+                            .collect(Collectors.joining(", "));
+
+                    headCount = menu.getHeadCount();
+                }
+
+                menuDto.put("itemList_" + mealTime.name().toLowerCase(), itemListStr);
+                menuDto.put("headCount_" + mealTime.name().toLowerCase(), headCount);
             }
 
             menuDtos.add(menuDto);
