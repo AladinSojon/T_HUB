@@ -32,7 +32,6 @@ public class UserController {
     @PostMapping("/user")
     @PreAuthorize("hasRole('SUPER_ADMIN')")
     public void save(@RequestBody User user) throws CollectionException {
-        System.out.println("hereeeeeeee");
         userService.save(user);
     }
 

@@ -28,7 +28,7 @@ public class Menu extends Persistent {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
-    private Day day;
+    private String day;
 
     @Column(name = "meal_time")
     private MealTime mealTime;

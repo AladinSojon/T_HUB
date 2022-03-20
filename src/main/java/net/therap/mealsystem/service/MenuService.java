@@ -1,8 +1,6 @@
 package net.therap.mealsystem.service;
 
-import net.therap.mealsystem.domain.Item;
 import net.therap.mealsystem.domain.Menu;
-import net.therap.mealsystem.domain.User;
 import net.therap.mealsystem.dto.MealDto;
 import net.therap.mealsystem.dto.MenuDto;
 import net.therap.mealsystem.exception.CollectionException;
@@ -11,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.validation.ConstraintViolationException;
+import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.ArrayList;
@@ -30,26 +29,9 @@ public class MenuService {
     @Autowired
     private MenuRepository menuRepository;
 
-    @Autowired
-    private ItemService itemService;
-
-    @Autowired
-    private UserService userService;
-
     public void save(Menu menu) throws ConstraintViolationException {
-        List<Item> itemList = new ArrayList<>();
-
-        for (Item item : menu.getItemList()) {
-            Optional<Item> itemDb = itemService.findById(item.getId());
-
-            itemDb.ifPresent(itemList::add);
-        }
-
-        Optional<User> createdBy = userService.findById(menu.getCreatedBy().getId());
-        createdBy.ifPresent(menu::setCreatedBy);
-
-        menu.setItemList(itemList);
-        menu.setCreated(new Date((System.currentTimeMillis())));
+        SimpleDateFormat simpleDateformat = new SimpleDateFormat("EEEE");
+        menu.setDay(simpleDateformat.format(menu.getMealDate()));
         menuRepository.save(menu);
     }
 
@@ -127,7 +109,7 @@ public class MenuService {
             for (Menu menu : menusForDate) {
                 MealDto mealDto = new MealDto();
                 mealDto.setMealTime(menu.getMealTime());
-                mealDto.setItemMap(menu.getItemList().stream().collect(Collectors.toMap(Item::getId, Item::getName)));
+                mealDto.setItemList(menu.getItemList());
                 mealDto.setHeadCount(menu.getHeadCount());
 
                 menuDto.getMealList().add(mealDto);
