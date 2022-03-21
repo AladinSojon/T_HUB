@@ -1,10 +1,8 @@
 package net.therap.mealsystem.dto;
 
-import lombok.Data;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
-import net.therap.mealsystem.util.JSONObject;
 
 import java.time.LocalDate;
 
@@ -14,17 +12,15 @@ import java.time.LocalDate;
  */
 @Getter
 @Setter
-@NoArgsConstructor
-public class MenuDto extends JSONObject {
+@AllArgsConstructor
+public class MenuDto {
 
     private LocalDate date;
     private String day;
 
-    public MenuDto(LocalDate date, String day) {
-        this.date = date;
-        this.day = day;
+    MealDto mealList;
 
-        this.put("date", date);
-        this.put("day", day);
+    public MenuDto() {
+        mealList = new MealDto();
     }
 }

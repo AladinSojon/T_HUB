@@ -8,6 +8,7 @@ import net.therap.mealsystem.exception.CollectionException;
 import net.therap.mealsystem.repository.MenuRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 import javax.validation.ConstraintViolationException;
 import java.text.SimpleDateFormat;
@@ -102,7 +103,10 @@ public class MenuService {
                 continue;
             }
 
-            MenuDto menuDto = new MenuDto(mealDate, mealDate.getDayOfWeek().name());
+            MenuDto menuDto = new MenuDto();
+
+            menuDto.setDate(mealDate);
+            menuDto.setDay(StringUtils.capitalize(mealDate.getDayOfWeek().name().toLowerCase()));
 
             for (MealTime mealTime : MealTime.values()) {
                 String itemListStr = "";
@@ -124,8 +128,8 @@ public class MenuService {
                     headCount = menu.getHeadCount();
                 }
 
-                menuDto.put("itemList_" + mealTime.name().toLowerCase(), itemListStr);
-                menuDto.put("headCount_" + mealTime.name().toLowerCase(), headCount);
+                menuDto.getMealList().put("Items (" + StringUtils.capitalize(mealTime.name().toLowerCase()) + ")", itemListStr);
+                menuDto.getMealList().put("Head Count (" + StringUtils.capitalize(mealTime.name().toLowerCase()) + ")", headCount);
             }
 
             menuDtos.add(menuDto);
