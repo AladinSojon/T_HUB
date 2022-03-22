@@ -70,6 +70,13 @@ CREATE TABLE menu_item
     CONSTRAINT pk_menu_item PRIMARY KEY (menu_id, item_id)
 );
 
+CREATE TABLE menu_user_not_interested
+(
+    menu_id INTEGER NOT NULL,
+    user_id INTEGER NOT NULL,
+    CONSTRAINT pk_menu_user_not_interested PRIMARY KEY (menu_id, user_id)
+);
+
 CREATE TABLE account_confirmation_token
 (
     id         INTEGER      NOT NULL AUTO_INCREMENT,

@@ -6,11 +6,13 @@ import net.therap.mealsystem.domain.Menu;
 import net.therap.mealsystem.dto.MenuDto;
 import net.therap.mealsystem.exception.CollectionException;
 import net.therap.mealsystem.repository.MenuRepository;
+import net.therap.mealsystem.util.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
 import javax.validation.ConstraintViolationException;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.ZoneId;
@@ -30,6 +32,9 @@ public class MenuService {
 
     @Autowired
     private MenuRepository menuRepository;
+
+    @Autowired
+    private UserService userService;
 
     public void save(Menu menu) throws ConstraintViolationException {
         SimpleDateFormat simpleDateformat = new SimpleDateFormat("EEEE");
@@ -55,6 +60,10 @@ public class MenuService {
         } else {
             return menuDb.get();
         }
+    }
+
+    public List<Menu> findByMealDate(Date date) {
+        return menuRepository.findByMealDateEquals(date);
     }
 
     public void update(Integer id, Menu menu) throws CollectionException {
@@ -136,5 +145,68 @@ public class MenuService {
         }
 
         return menuDtos;
+    }
+
+    public JSONObject getMealPreference(Date date) {
+        JSONObject jsonObject = new JSONObject();
+
+        String currentLoggedInUsername = userService.getCurrentLoggedInUsername();
+
+        List<Menu> menuList = findByMealDate(date);
+
+        jsonObject.put("date", date);
+        //jsonObject.put("menuList", menuList);
+
+        for (Menu menu : menuList) {
+            boolean isNotInterestedInThisMenu = menu.getNotInterestedUserList()
+                    .stream()
+                    .anyMatch(user -> currentLoggedInUsername.equals(user.getUsername()));
+
+            jsonObject.put(menu.getMealTime().name(), isNotInterestedInThisMenu);
+        }
+
+        return jsonObject;
+    }
+
+    public void setMealPreference(JSONObject jsonObject) throws ParseException, CollectionException {
+        String currentLoggedInUsername = userService.getCurrentLoggedInUsername();
+
+        Date mealDate = Date.from(LocalDate.parse((String) jsonObject.get("date")).atStartOfDay(ZoneId.systemDefault()).toInstant());
+
+        List<Menu> menuList = findByMealDate(mealDate);
+
+        for (String key : jsonObject.keySet()) {
+            if ("date".equals(key)) {
+                continue;
+            }
+
+            Optional<Menu> optionalMenu = menuList.stream().filter(m -> m.getMealTime().equals(MealTime.valueOf(key))).findFirst();
+            if (optionalMenu.isPresent()) {
+                Menu menu = optionalMenu.get();
+
+                boolean isExistingNotInterestedInThisMenu = menu.getNotInterestedUserList()
+                        .stream()
+                        .anyMatch(user -> currentLoggedInUsername.equals(user.getUsername()));
+
+                boolean isCurrentlyNotInterestedInThisMenu = (boolean) jsonObject.get(key);
+
+                if (!isCurrentlyNotInterestedInThisMenu && isExistingNotInterestedInThisMenu) {
+                    menu.getNotInterestedUserList().remove(userService.findByUsername(currentLoggedInUsername));
+                } else if (isCurrentlyNotInterestedInThisMenu && !isExistingNotInterestedInThisMenu) {
+                    menu.getNotInterestedUserList().add(userService.findByUsername(currentLoggedInUsername));
+                }
+
+                update(menu.getId(), menu);
+            }
+        }
+    }
+
+    public void validateMealPreference(String date) {
+        Date now = new Date(System.currentTimeMillis());
+        Date validUpto = Date.from(LocalDate.parse(date).minusDays(1).atTime(17, 0).atZone(ZoneId.systemDefault()).toInstant());
+
+        if (now.after(validUpto)) {
+            throw new IllegalStateException("You must submit meal preference at least a day before (within 5 PM)");
+        }
     }
 }

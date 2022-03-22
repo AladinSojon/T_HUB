@@ -16,4 +16,6 @@ import java.util.List;
 public interface MenuRepository extends JpaRepository<Menu, Integer> {
 
     List<Menu> findByMealDateGreaterThanEqualAndMealDateLessThanEqual(Date fromDate, Date toDate);
+
+    List<Menu> findByMealDateEquals(Date date);
 }

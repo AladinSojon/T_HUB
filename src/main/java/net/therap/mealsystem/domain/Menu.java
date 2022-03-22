@@ -55,7 +55,13 @@ public class Menu extends Persistent {
     @JoinColumn(name = "updated_by_id")
     private User updatedBy;
 
+    @OneToMany
+    @JoinTable(name = "menu_user_not_interested", joinColumns = {@JoinColumn(name = "menu_id", referencedColumnName = "id")},
+            inverseJoinColumns = {@JoinColumn(name = "user_id")})
+    List<User> notInterestedUserList;
+
     public Menu() {
         itemList = new ArrayList<>();
+        notInterestedUserList = new ArrayList<>();
     }
 }

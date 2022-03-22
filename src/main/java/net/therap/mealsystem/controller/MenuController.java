@@ -4,6 +4,7 @@ import net.therap.mealsystem.domain.Menu;
 import net.therap.mealsystem.dto.MenuDto;
 import net.therap.mealsystem.exception.CollectionException;
 import net.therap.mealsystem.service.MenuService;
+import net.therap.mealsystem.util.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -11,10 +12,15 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.ConstraintViolationException;
+import java.text.ParseException;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.util.Date;
 import java.util.List;
 
 /**
  * @author aladin
+ * @author sheikh.ishrak
  * @since 3/1/22
  */
 @CrossOrigin(origins = "http://localhost:3000")
@@ -75,5 +81,23 @@ public class MenuController {
         } catch (CollectionException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
         }
+    }
+
+    @GetMapping("/menu/mealPreference")
+    public ResponseEntity<?> showMealPreference(@RequestParam("date") String date) throws ParseException {
+        menuService.validateMealPreference(date);
+
+        Date mealDate = Date.from(LocalDate.parse(date).atStartOfDay(ZoneId.systemDefault()).toInstant());
+
+        JSONObject jsonObject = menuService.getMealPreference(mealDate);
+
+        return new ResponseEntity<>(jsonObject, HttpStatus.OK);
+    }
+
+    @PostMapping("/menu/mealPreference")
+    public ResponseEntity<?> setMealPreference(@RequestBody JSONObject jsonObject) throws ParseException, CollectionException {
+        menuService.setMealPreference(jsonObject);
+
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 }
