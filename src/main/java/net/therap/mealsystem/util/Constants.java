@@ -6,7 +6,7 @@ package net.therap.mealsystem.util;
  */
 public interface Constants {
 
-    String[] PERMIT_ALL_PATTERNS = {"/item/*", "/item", "/user/*", "/user", "/menu", "/menu/*", "/day/*", "/mealTime/*",
+    String[] PERMIT_ALL_PATTERNS = {"/item/*", "/item", "/user/*", "/user/role/*", "/user", "/menu", "/menu/*", "/day/*", "/mealTime/*", "/role/list",
             "/login", "/logout", "/signup/**", "/resendConfirmation", "/resetPassword/**", "/accessDenied", "/accountUnverified", "/css/**"};
 
     String THERAP_EMAIL_PATTERN = "^[A-Za-z0-9._%+-]+@therapservices.net$";

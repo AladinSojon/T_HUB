@@ -9,6 +9,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
 
 import javax.validation.ConstraintViolationException;
@@ -81,18 +82,12 @@ public class UserService implements UserDetailsService {
 
             User updatedUser = userDB.get();
 
-            updatedUser.setUsername(user.getUsername());
-            updatedUser.setFirstName(user.getFirstName());
-            updatedUser.setLastName(user.getLastName());
-            updatedUser.setEmail(user.getEmail());
-            updatedUser.setPassword(user.getPassword());
-            updatedUser.setCreated(user.getCreated());
+            updatedUser.setUsername(user.getUsername() == null ? updatedUser.getUsername() : user.getUsername());
+            updatedUser.setFirstName(user.getFirstName() == null ? updatedUser.getFirstName() : user.getFirstName());
+            updatedUser.setLastName(user.getLastName() == null ? updatedUser.getLastName() : user.getLastName());
+            updatedUser.setEmail(user.getEmail() == null ? updatedUser.getEmail() : user.getEmail());
+            updatedUser.setRoles(CollectionUtils.isEmpty(user.getRoles()) ? updatedUser.getRoles() : user.getRoles());
             updatedUser.setUpdated(new Date(System.currentTimeMillis()));
-            updatedUser.setAccountStatus(user.getAccountStatus());
-            updatedUser.setAccountNonExpired(user.isAccountNonExpired());
-            updatedUser.setAccountNonLocked(user.isAccountNonLocked());
-            updatedUser.setCredentialsNonExpired(user.isCredentialsNonExpired());
-            updatedUser.setEnabled(user.isEnabled());
 
             userRepository.save(updatedUser);
         } else {
