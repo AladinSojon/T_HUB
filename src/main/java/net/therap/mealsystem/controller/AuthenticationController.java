@@ -44,4 +44,9 @@ public class AuthenticationController {
         authenticationService.setNewPassword(token, password);
         return new ResponseEntity<>(HttpStatus.OK);
     }
+
+    @GetMapping("/accountUnverified")
+    public String showAccessDenied() {
+        return "Account not confirmed yet.";
+    }
 }

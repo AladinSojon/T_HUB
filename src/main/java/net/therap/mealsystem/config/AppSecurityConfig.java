@@ -1,5 +1,6 @@
 package net.therap.mealsystem.config;
 
+import net.therap.mealsystem.exception.CustomAccessDeniedHandler;
 import net.therap.mealsystem.filter.AuthenticationFilter;
 import net.therap.mealsystem.filter.JwtPerRequestFilter;
 import net.therap.mealsystem.service.UserService;
@@ -15,8 +16,7 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.security.web.access.AccessDeniedHandler;
 
 import static net.therap.mealsystem.util.Constants.PERMIT_ALL_PATTERNS;
 
@@ -45,9 +45,14 @@ public class AppSecurityConfig extends WebSecurityConfigurerAdapter {
                 .addFilterAfter(new JwtPerRequestFilter(), AuthenticationFilter.class)
                 .authorizeRequests()
                 .antMatchers(PERMIT_ALL_PATTERNS).permitAll()
+                .antMatchers("/**").hasRole("VERIFIED_USER")
                 .anyRequest()
                 .authenticated()
         ;
+
+        http
+                .exceptionHandling()
+                .accessDeniedHandler(accessDeniedHandler());
     }
 
     @Override
@@ -66,5 +71,10 @@ public class AppSecurityConfig extends WebSecurityConfigurerAdapter {
         provider.setPasswordEncoder(passwordEncoder);
         provider.setUserDetailsService(userService);
         return provider;
+    }
+
+    @Bean
+    public AccessDeniedHandler accessDeniedHandler(){
+        return new CustomAccessDeniedHandler();
     }
 }

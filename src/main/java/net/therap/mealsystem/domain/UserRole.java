@@ -9,5 +9,5 @@ public enum UserRole {
     SUPER_ADMIN,
     MEAL_ADMIN,
     MEAL_USER,
-    BASIC_USER
+    VERIFIED_USER
 }

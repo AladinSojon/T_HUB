@@ -14,7 +14,6 @@ import java.util.Arrays;
 import java.util.UUID;
 import java.util.regex.Pattern;
 
-import static net.therap.mealsystem.domain.UserRole.BASIC_USER;
 import static net.therap.mealsystem.domain.UserRole.MEAL_USER;
 import static net.therap.mealsystem.util.Constants.EMAIL_PATTERN;
 import static net.therap.mealsystem.util.Constants.THERAP_EMAIL_PATTERN;
@@ -71,12 +70,12 @@ public class RegistrationService {
         user.setLastName(registrationRequest.getLastName());
         user.setEmail(registrationRequest.getEmail());
         user.setPassword(passwordEncoder.encode(registrationRequest.getPassword()));
-        user.setRoles(Arrays.asList(MEAL_USER, BASIC_USER));
+        user.setRoles(Arrays.asList(MEAL_USER));
         user.setAccountStatus(UserAccountStatus.NOT_CONFIRMED);
         user.setAccountNonExpired(true);
         user.setAccountNonLocked(true);
         user.setCredentialsNonExpired(true);
-        user.setEnabled(false);
+        user.setEnabled(true);
 
         userService.save(user);
 

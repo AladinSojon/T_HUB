@@ -3,6 +3,7 @@ package net.therap.mealsystem.service;
 import net.therap.mealsystem.domain.AccountConfirmationToken;
 import net.therap.mealsystem.domain.User;
 import net.therap.mealsystem.domain.UserAccountStatus;
+import net.therap.mealsystem.domain.UserRole;
 import net.therap.mealsystem.exception.CollectionException;
 import net.therap.mealsystem.repository.AccountConfirmationTokenRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,7 +34,7 @@ public class AccountConfirmationTokenService {
 
         User user = accountConfirmationToken.getUser();
         user.setAccountStatus(UserAccountStatus.CONFIRMED);
-        user.setEnabled(true);
+        user.getRoles().add(UserRole.VERIFIED_USER);
         userService.update(user.getId(), user);
     }
 

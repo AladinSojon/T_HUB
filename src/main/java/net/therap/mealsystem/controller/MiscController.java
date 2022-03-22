@@ -34,4 +34,9 @@ public class MiscController {
 
         return jsonList;
     }
+
+    @GetMapping("/accessDenied")
+    public String showAccessDenied() {
+        return "Access Denied.";
+    }
 }
