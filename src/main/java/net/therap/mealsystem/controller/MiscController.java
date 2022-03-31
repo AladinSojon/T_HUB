@@ -7,6 +7,8 @@ import net.therap.mealsystem.service.MenuService;
 import net.therap.mealsystem.service.UserService;
 import net.therap.mealsystem.util.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -80,7 +82,12 @@ public class MiscController {
     }
 
     @GetMapping("/accessDenied")
-    public String showAccessDenied() {
-        return "Access Denied.";
+    public ResponseEntity<?> showAccessDenied() {
+        JSONObject jsonObject = new JSONObject();
+
+        jsonObject.put("message", "Insufficient Privileges, Access Denied.");
+        jsonObject.put("access", "accessDenied");
+
+        return new ResponseEntity<>(jsonObject, HttpStatus.OK);
     }
 }

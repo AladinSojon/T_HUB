@@ -154,7 +154,7 @@ public class MenuService {
 
         List<Menu> menuList = findByMealDate(date);
 
-        jsonObject.put("date", date);
+        //jsonObject.put("date", date);
         //jsonObject.put("menuList", menuList);
 
         for (Menu menu : menuList) {
@@ -162,7 +162,7 @@ public class MenuService {
                     .stream()
                     .anyMatch(user -> currentLoggedInUsername.equals(user.getUsername()));
 
-            jsonObject.put(menu.getMealTime().name(), isNotInterestedInThisMenu);
+            jsonObject.put(menu.getMealTime().name(), !isNotInterestedInThisMenu);
         }
 
         return jsonObject;
@@ -188,12 +188,14 @@ public class MenuService {
                         .stream()
                         .anyMatch(user -> currentLoggedInUsername.equals(user.getUsername()));
 
-                boolean isCurrentlyNotInterestedInThisMenu = (boolean) jsonObject.get(key);
+                boolean isCurrentlyNotInterestedInThisMenu = !((boolean) jsonObject.get(key));
 
                 if (!isCurrentlyNotInterestedInThisMenu && isExistingNotInterestedInThisMenu) {
                     menu.getNotInterestedUserList().remove(userService.findByUsername(currentLoggedInUsername));
+                    menu.setHeadCount(menu.getHeadCount() + 1);
                 } else if (isCurrentlyNotInterestedInThisMenu && !isExistingNotInterestedInThisMenu) {
                     menu.getNotInterestedUserList().add(userService.findByUsername(currentLoggedInUsername));
+                    menu.setHeadCount(menu.getHeadCount() - 1);
                 }
 
                 update(menu.getId(), menu);

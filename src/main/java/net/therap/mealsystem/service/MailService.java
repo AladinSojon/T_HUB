@@ -29,7 +29,8 @@ public class MailService {
         simpleMailMessage.setText("Hi " + user.getUsername() + ", " +
                 "\n\nWelcome to MealSystem!" +
                 "\nPlease confirm your account using the following link: " +
-                "\n\n" + confirmationLink);
+                "\n\n" + confirmationLink +
+                "\n\nThe link will expire in 24 hours.");
 
         javaMailSender.send(simpleMailMessage);
     }
@@ -41,9 +42,9 @@ public class MailService {
         SimpleMailMessage simpleMailMessage = new SimpleMailMessage();
         simpleMailMessage.setTo(user.getEmail());
 
-        simpleMailMessage.setSubject("Reset your Password");
+        simpleMailMessage.setSubject("Reset your MealSystem Password");
         simpleMailMessage.setText("Hi " + user.getUsername() + ", " +
-                "\n\nA request to reset your password had been issued." +
+                "\n\nA request to reset your MealSystem account password had been issued." +
                 "\nYou can change your password using the following link: " +
                 "\n\n" + passwordResetLink +
                 "\n\nThe link will expire in 3 hours.");

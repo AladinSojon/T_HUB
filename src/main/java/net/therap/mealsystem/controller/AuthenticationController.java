@@ -46,7 +46,12 @@ public class AuthenticationController {
     }
 
     @GetMapping("/accountUnverified")
-    public String showAccessDenied() {
-        return "Account not confirmed yet.";
+    public ResponseEntity<?> showAccountNotConfirmed() {
+        JSONObject jsonObject = new JSONObject();
+
+        jsonObject.put("message", "Account not confirmed yet. Check Email for Account Confirmation Link.");
+        jsonObject.put("access", "accountUnverified");
+
+        return new ResponseEntity<>(jsonObject, HttpStatus.OK);
     }
 }

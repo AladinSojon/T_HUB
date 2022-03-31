@@ -84,7 +84,8 @@ public class MenuController {
     }
 
     @GetMapping("/menu/mealPreference")
-    public ResponseEntity<?> showMealPreference(@RequestParam("date") String date) throws ParseException {
+    @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'MEAL_ADMIN', 'MEAL_USER')")
+    public ResponseEntity<?> showMealPreference(@RequestParam("date") String date) {
         menuService.validateMealPreference(date);
 
         Date mealDate = Date.from(LocalDate.parse(date).atStartOfDay(ZoneId.systemDefault()).toInstant());
@@ -95,6 +96,7 @@ public class MenuController {
     }
 
     @PostMapping("/menu/mealPreference")
+    @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'MEAL_ADMIN', 'MEAL_USER')")
     public ResponseEntity<?> setMealPreference(@RequestBody JSONObject jsonObject) throws ParseException, CollectionException {
         menuService.setMealPreference(jsonObject);
 
