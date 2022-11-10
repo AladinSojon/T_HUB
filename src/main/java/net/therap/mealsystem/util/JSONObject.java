@@ -1,0 +1,23 @@
+package net.therap.mealsystem.util;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import java.util.LinkedHashMap;
+
+/**
+ * @author aladin
+ * @since 3/19/22
+ */
+public class JSONObject extends LinkedHashMap<String, Object> {
+
+    private static final ObjectMapper objectMapper;
+
+    static {
+        objectMapper = new ObjectMapper();
+    }
+
+    public static <T> T getObjectFromJson(String json, Class<T> tClass) throws JsonProcessingException {
+        return objectMapper.readValue(json, tClass);
+    }
+}
